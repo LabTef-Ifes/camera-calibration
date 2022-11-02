@@ -5,11 +5,16 @@ import cv2
 import json
 import time
 import glob
-import cv2.aruco as aruco
 import os
+
+camera_id = 2
+h = 720
+w = 1280
+arucos = 12
+
 def to_np(input_image):
     if isinstance(input_image, np.ndarray):
-        output_image = input_image
+        return input_image
     elif isinstance(input_image, Image):
         buffer = np.frombuffer(input_image.data, dtype=np.uint8)
         output_image = cv2.imdecode(buffer, flags=cv2.IMREAD_COLOR)
@@ -22,15 +27,13 @@ if __name__ == '__main__':
     print('---RUNNING EXAMPLE DEMO OF THE CAMERA CLIENT---')
     #fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     broker_uri = "amqp://10.10.3.188:30000"
-    camera_id = 6
-    arucos = 12
     channel = Channel(broker_uri)
     subscription = Subscription(channel=channel,name="Intelbras_Camera")
     subscription.subscribe(topic='CameraGateway.{}.Frame'.format(camera_id))
-    ARUCO_DICT = aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+    ARUCO_DICT = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
     window = 'Intelbras Camera'
     cv2.namedWindow("camera", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("camera", 720, 1280)
+    cv2.resizeWindow("camera", h, w)
     n=0
     t=0
     img_array = []
@@ -39,10 +42,10 @@ if __name__ == '__main__':
         im = msg.unpack(Image)
         frame = to_np(im)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        corners, ids, _ = aruco.detectMarkers( image=gray,dictionary=ARUCO_DICT)
+        corners, ids, _ = cv2.aruco.detectMarkers( image=gray,dictionary=ARUCO_DICT)
         try:
             if len(ids) == arucos and t == 40:
-                n = n+1
+                n += 1
                 img_array.append(frame)
                 cv2.imwrite(f'./calibration_img/cam{camera_id}/intrinsic/img{n}.png',frame)
                 os.system('spd-say "captured"')
