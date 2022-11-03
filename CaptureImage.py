@@ -5,11 +5,14 @@ import cv2
 import json
 import time
 import glob
+import datetime
+
+# alterar o ID da camera e o diretório
 
 camera_id = 2
 h = 720
 w = 1280
-
+today = datetime.datetime.today()
 
 def to_np(input_image):
     if isinstance(input_image, np.ndarray):
@@ -23,7 +26,6 @@ def to_np(input_image):
 
 
 if __name__ == '__main__':
-    # alterar o ID da camera e o diretório
     print('---RUNNING EXAMPLE DEMO OF THE CAMERA CLIENT---')
     broker_uri = "amqp://10.10.3.188:30000"
     channel = Channel(broker_uri)
@@ -42,7 +44,7 @@ if __name__ == '__main__':
         if cv2.waitKey(1) & 0xFF == ord('s'):
             n += 1
             cv2.imwrite(
-                f'./calibration_img/cam{camera_id}/intrinsic/img{n}.png', frame)
+                f'./calibration_img/intrinsic/data_{today}_camera{camera_id}_{n}.png', frame)
         elif cv2.waitKey(1) & 0xFF == ord('q'):
             break
         cv2.imshow("camera", frame)

@@ -123,14 +123,15 @@ if not image_size:
 
 # Now that we've seen all of our images, perform the camera calibration
 # based on the set of points we've discovered
-print("Calibrando...")
-calibration_error, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.aruco.calibrateCameraCharuco(
-    charucoCorners=corners_all,
-    charucoIds=ids_all,
-    board=CHARUCO_BOARD,
-    imageSize=image_size,
-    cameraMatrix=None,
-    distCoeffs=None)
+else:
+    print("Calibrando...")
+    calibration_error, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.aruco.calibrateCameraCharuco(
+        charucoCorners=corners_all,
+        charucoIds=ids_all,
+        board=CHARUCO_BOARD,
+        imageSize=image_size,
+        cameraMatrix=None,
+        distCoeffs=None)
 
 # print(cameraMatrix.reshape(-1).tolist())
 # Print matrix and distortion coefficient to the console
@@ -238,4 +239,4 @@ with open('params_camera{}.json'.format(camera_id), 'w') as f:
     json.dump(calibration_parameters, f, indent=2)
 
 
-print(calibration_parameters)
+print(json.dumps(calibration_parameters))

@@ -50,7 +50,7 @@ if __name__ == '__main__':
         # Saves the frame on pressing 's'
         if key == ord('s'):
             n+=1
-            cv2.imwrite(f"image_aruco/data_{today}_camera{camera_id}_{n:0>3}.png", frame)
+            cv2.imwrite(f"calibration_img/data_{today}_camera{camera_id}_{n:0>3}.png", frame)
             print(f'imagem {n} capturada')
 
 	
