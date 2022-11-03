@@ -62,20 +62,6 @@ for image_path in (os.listdir('./calibration_img/intrinsic/')):
         img = cv2.imread('calibration_img/intrinsic/'+image_path,0)
     except:
         continue
-    #grab, img = camera_intrinsec.read()
-    # if not grab:break
-    # if images == 243: continue
-    #proportion = max(img.shape) / 1000.0
-    # Open the image
-    # if images%2!=0: continue
-    # print(images)
-    # Grayscale the image
-    # x1,y1,x2,y2 = (crop*proportion).astype(int)
-
-    # img[y1:y2, x1:x2] = 0
-    #cv2.imshow('Charuco board', gray)
-    # cv2.waitKey(0)
-    # Find aruco markers in the query image
     try:
         corners, ids, _ = cv2.aruco.detectMarkers(
             image=img,
@@ -100,6 +86,8 @@ for image_path in (os.listdir('./calibration_img/intrinsic/')):
 
     # If a Charuco board was found, let's collect image/corner points
     # Requiring at least 20 squares
+
+    #Must configure the threshold for response, i got 5 at LabTef in 2022-11-01
     print(response)
     if response > 5:
         # Add these corners and ids to our calibration arrays
@@ -116,12 +104,8 @@ for image_path in (os.listdir('./calibration_img/intrinsic/')):
         if not image_size:
             image_size = img.shape[::-1]
 
-        # # Reproportion the image, maxing width or height at 1000
-        # img = cv2.resize(img, (int(img.shape[1]/proportion), int(img.shape[0]/proportion)))
-        # # Pause to display each image, waiting for key press
         cv2.imshow('Charuco board', img)
         cv2.waitKey(1)
-
 
     # sleep(1)
 
@@ -139,6 +123,7 @@ if not image_size:
 
 # Now that we've seen all of our images, perform the camera calibration
 # based on the set of points we've discovered
+print("Calibrando...")
 calibration_error, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.aruco.calibrateCameraCharuco(
     charucoCorners=corners_all,
     charucoIds=ids_all,
@@ -154,28 +139,23 @@ print(f"distCoeffs = {distCoeffs}")
 print(f"calibration = {calibration_error}")
 
 
-while images <= len(os.listdir('./calibration_img/extrinsic')):
+for image_path in (os.listdir('./calibration_img/extrinsic/')):
 
     try:
-        img = cv2.imread(extrinsic_path,0)
+        img = cv2.imread(extrinsic_path+image_path,0)
     except:
         continue
-    # if not grab:break
-    # Open the image
-    images += 1
-    if images % 1 != 0:
-        continue
-    print('extrinsecs:', images)
 
     image_h, image_w = img.shape[:2]
 
     #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    (corners, ids, rejected) = cv2.aruco.detectMarkers(gray, ARUCO_DICT)
+    corners, ids, rejected = cv2.aruco.detectMarkers(img, ARUCO_DICT)
     rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(
         corners, markerSize, cameraMatrix, distCoeffs)
+
     cv2.aruco.drawDetectedMarkers(img, corners, ids)
-    # cv2.imshow('Aruco', img)
-    # cv2.waitKey(4)
+
+    #7?
     marker_id = np.where(ids.reshape(-1) == 7)
     rvec = rvec[marker_id].reshape((1, -1))
     print(rvec.shape, ids, rvec.shape)
@@ -190,9 +170,6 @@ while images <= len(os.listdir('./calibration_img/extrinsic')):
     extrinsecs = cv2.vconcat([extrinsecs, last_colum])
     print(extrinsecs.shape, cameraMatrix.shape, distCoeffs.shape)
     break
-
-    # Print to console our success
-    # print('Calibration successful. Calibration file used: {}'.format('calibration.pckl'))
 
 calibration_parameters = {
     "error": calibration_error,
