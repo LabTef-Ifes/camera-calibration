@@ -1,4 +1,4 @@
-from is_wire.core import Channel,Subscription,Message
+from is_wire.core import Channel, Subscription, Message
 from is_msgs.image_pb2 import Image
 import numpy as np
 import cv2
@@ -21,28 +21,28 @@ def to_np(input_image):
         output_image = np.array([], dtype=np.uint8)
     return output_image
 
+
 if __name__ == '__main__':
-    #alterar o ID da camera e o diretório 
+    # alterar o ID da camera e o diretório
     print('---RUNNING EXAMPLE DEMO OF THE CAMERA CLIENT---')
     broker_uri = "amqp://10.10.3.188:30000"
     channel = Channel(broker_uri)
-    subscription = Subscription(channel=channel,name="Intelbras_Camera")
+    subscription = Subscription(channel=channel, name="Intelbras_Camera")
     subscription.subscribe(topic='CameraGateway.{}.Frame'.format(1))
 
     window = 'Intelbras Camera'
     cv2.namedWindow("camera", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("camera", h, w)
-    n=0
+    n = 0
     img_array = []
     while True:
-        msg = channel.consume()  
+        msg = channel.consume()
         im = msg.unpack(Image)
         frame = to_np(im)
         if cv2.waitKey(1) & 0xFF == ord('s'):
             n += 1
-            cv2.imwrite(f'./calibration_img/cam{camera_id}/intrinsic/img{n}.png',frame)
-        elif cv2.waitKey(1) & 0xFF == ord('q'):       
+            cv2.imwrite(
+                f'./calibration_img/cam{camera_id}/intrinsic/img{n}.png', frame)
+        elif cv2.waitKey(1) & 0xFF == ord('q'):
             break
         cv2.imshow("camera", frame)
-    
-    
