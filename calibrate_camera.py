@@ -20,7 +20,7 @@ else:
 print('camera:', camera_id)
 
 #data das fotos da calibração YYYY-MM-DD
-data = '2022-11-01' #datetime.today() 
+data = '2022-11-07' #datetime.today() 
 intrinsec_path = 'calibration_img\\intrinsic\\data_'+str(data)+'_camera'+str(camera_id)+'_'
 extrinsec_path = 'calibration_img\\extrinsic\\data_'+str(data)+'_camera'+str(camera_id)+'_'
 
@@ -58,7 +58,10 @@ image_size = None  # Determined at runtime
 #crop = np.array((153,478,228,558))
 for image_path in (os.listdir('./calibration_img/intrinsic/')):
     try:
-        img = cv2.imread('calibration_img/intrinsic/'+image_path,0)
+        if "camera"+str(camera_id) in image_path:
+            img = cv2.imread('calibration_img/intrinsic/'+image_path,0)
+        else:
+            continue
     except:
         continue
     try:
@@ -142,7 +145,11 @@ print(f"calibration = {calibration_error}")
 for image_path in (os.listdir('./calibration_img/extrinsic/')):
 
     try:
-        img = cv2.imread(extrinsic_path+image_path,0)
+        if "camera"+str(camera_id) in image_path:
+            img = cv2.imread('calibration_img/extrinsic/'+image_path,0)
+
+        else:
+            continue
     except:
         continue
 
@@ -238,4 +245,4 @@ with open('params_camera{}.json'.format(camera_id), 'w') as f:
     json.dump(calibration_parameters, f, indent=2)
 
 
-print(json.dumps(calibration_parameters))
+print(json.dumps(calibration_parameters),indent=2)

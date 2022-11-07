@@ -6,7 +6,7 @@ import json
 import time
 from datetime import date, datetime
 
-camera_id = 2 # selecionar camera
+camera_id = 1 # selecionar camera
 h = 728
 w = 1288
 today = date.today()
