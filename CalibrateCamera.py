@@ -31,7 +31,6 @@ print('camera :', camera_id)
 
 date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-
 ARUCO_DICT = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 print(date)
 # Create constants to be passed into OpenCV and Aruco methods
