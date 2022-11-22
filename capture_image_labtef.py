@@ -41,7 +41,6 @@ if __name__ == '__main__':
     markerLength=markerLength,
     dictionary=ARUCO_DICT)
 
-
     broker_uri = "amqp://guest:guest@localhost:5672"
     channel = Channel(broker_uri)
     subscription = Subscription(channel=channel)
@@ -79,6 +78,14 @@ if __name__ == '__main__':
             image=img,
             board=CHARUCO_BOARD)
         print(response)
+
+
+
+        corners, ids, rejected = cv2.aruco.detectMarkers(img, ARUCO_DICT)
+        rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(
+        corners, markerSize, cameraMatrix, distCoeffs)
+
+        cv2.aruco.drawDetectedMarkers(img, corners, ids)
 
         cv2.imshow(window, frame)
         key = cv2.waitKey(1)
