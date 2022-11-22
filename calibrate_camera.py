@@ -22,11 +22,10 @@ print('camera:', camera_id)
 
 # data das fotos da calibração YYYY-MM-DD
 data = '2022-11-07'  # datetime.today()
-intrinsec_path = 'calibration_img\\intrinsic\\data_' + \
-    str(data)+'_camera'+str(camera_id)+'_'
-extrinsec_path = 'calibration_img\\extrinsic\\data_' + \
-    str(data)+'_camera'+str(camera_id)+'_'
+intrinsec_path = f'calibration_img/intrinsic/cam{camera_id}/'
 
+#\data_' + str(data)+'_camera'+str(camera_id)+'_'
+extrinsec_path = 'calibration_img/extrinsic/'
 CHARUCOBOARD_ROWCOUNT = 4
 CHARUCOBOARD_COLCOUNT = 3
 squareLength = 0.20
@@ -50,22 +49,14 @@ corners_all = []  # Corners discovered in all images processed
 ids_all = []  # Aruco ids corresponding to corners discovered
 image_size = None  # Determined at runtime
 
-
-# This requires a set of images or a video taken with the camera you want to calibrate
-# I'm using a set of images taken with the camera with the naming convention:
-# 'camera-pic-of-charucoboard-<NUMBER>.jpg'
-# All images used should be the same size, which if taken with the same camera shouldn't be a problem
-#camera_intrinsec = cv2.VideoCapture("./output/intrinsec_cam{}.avi".format(camera_id))
-#camera_extrinsec = cv2.VideoCapture("./output/extrinsec_cam{}.avi".format(camera_id))
-# Loop through images glob'ed
-#crop = np.array((153,478,228,558))
-for image_path in (os.listdir('./calibration_img/intrinsic/')):
+for image_path in (os.listdir(f'./calibration_img/intrinsic/cam{camera_id}/')):
     try:
         if "camera"+str(camera_id) in image_path:
-            img = cv2.imread('calibration_img/intrinsic/'+image_path, 0)
+            img = cv2.imread(intrinsec_path+image_path, 0)
         else:
             continue
-    except:
+    except Exception as error:
+        print(error)
         continue
     try:
         corners, ids, _ = cv2.aruco.detectMarkers(
@@ -146,7 +137,7 @@ print(f"cameraMatrix = {cameraMatrix}")
 print(f"distCoeffs = {distCoeffs}")
 print(f"calibration = {calibration_error}")
 
-
+'''
 for image_path in (os.listdir('./calibration_img/extrinsic/')):
 
     try:
@@ -182,7 +173,7 @@ for image_path in (os.listdir('./calibration_img/extrinsic/')):
     extrinsecs = cv2.vconcat([extrinsecs, last_colum])
     print(extrinsecs.shape, cameraMatrix.shape, distCoeffs.shape)
     break
-
+'''
 calibration_parameters = {
     "error": calibration_error,
     "resolution": {
@@ -206,7 +197,7 @@ calibration_parameters = {
               ]
           },
             "type": "DOUBLE_TYPE",
-            "doubles": extrinsecs.reshape(-1).tolist()
+            #"doubles": extrinsecs.reshape(-1).tolist()
         },
         "from": "1000"
     },
