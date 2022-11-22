@@ -21,10 +21,27 @@ def to_np(input_image):
         output_image = np.array([], dtype=np.uint8)
     return output_image
 
+
 if __name__ == '__main__':
 
-    print('---RUNNING EXAMPLE DEMO OF THE CAMERA CLIENT---')
-    
+    print('---RUNNING THE CAMERA CLIENT---')
+    CHARUCOBOARD_ROWCOUNT = 4
+    CHARUCOBOARD_COLCOUNT = 3
+    squareLength = 0.20
+    markerLength = 0.16
+    image_h = 728
+    image_w = 1288
+    markerSize = 0.649  # Arucao
+    ARUCO_DICT = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+    # Create constants to be passed into OpenCV and Aruco methods
+    CHARUCO_BOARD = cv2.aruco.CharucoBoard_create(
+    squaresX=CHARUCOBOARD_COLCOUNT,
+    squaresY=CHARUCOBOARD_ROWCOUNT,
+    squareLength=squareLength,
+    markerLength=markerLength,
+    dictionary=ARUCO_DICT)
+
+
     broker_uri = "amqp://guest:guest@localhost:5672"
     channel = Channel(broker_uri)
     subscription = Subscription(channel=channel)
@@ -40,6 +57,29 @@ if __name__ == '__main__':
         msg = channel.consume()  
         im = msg.unpack(Image)
         frame = to_np(im)
+        try:
+            corners, ids, _ = cv2.aruco.detectMarkers(
+                image=frame,
+                dictionary=ARUCO_DICT)
+        except:
+            print('error')
+            continue
+        # Outline the aruco markers found in our query image
+        img = cv2.aruco.drawDetectedMarkers(
+            image=frame,
+            corners=corners)
+
+        # Get charuco corners and ids from detected aruco markers
+        if ids is None:
+            continue
+
+        response, charuco_corners, charuco_ids = cv2.aruco.interpolateCornersCharuco(
+            markerCorners=corners,
+            markerIds=ids,
+            image=img,
+            board=CHARUCO_BOARD)
+        print(response)
+
         cv2.imshow(window, frame)
         key = cv2.waitKey(1)
         
@@ -50,7 +90,7 @@ if __name__ == '__main__':
         # Saves the frame on pressing 's'
         if key == ord('s'):
             n+=1
-            cv2.imwrite(f"calibration_img/data_{today}_camera{camera_id}_{n:0>3}.png", frame)
+            cv2.imwrite(f"calibration_img/intrisec/cam{camera_id}/data_{today}_camera{camera_id}_{n:0>3}.png", frame)
             print(f'imagem {n} capturada')
 
 	

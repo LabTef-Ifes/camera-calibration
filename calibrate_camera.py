@@ -1,4 +1,4 @@
-#pip install opencv-contrib-python
+# pip install opencv-contrib-python
 import cv2
 import sys
 import pickle
@@ -9,9 +9,10 @@ import json
 from datetime import datetime
 import os
 
-#Classe de erro
+# Classe de erro
 class Calibration_Error(Exception):
     pass
+
 
 if len(sys.argv) > 1:
     camera_id = int(sys.argv[1])
@@ -19,18 +20,20 @@ else:
     camera_id = int(input("Camera id: "))
 print('camera:', camera_id)
 
-#data das fotos da calibração YYYY-MM-DD
-data = '2022-11-07' #datetime.today() 
-intrinsec_path = 'calibration_img\\intrinsic\\data_'+str(data)+'_camera'+str(camera_id)+'_'
-extrinsec_path = 'calibration_img\\extrinsic\\data_'+str(data)+'_camera'+str(camera_id)+'_'
+# data das fotos da calibração YYYY-MM-DD
+data = '2022-11-07'  # datetime.today()
+intrinsec_path = 'calibration_img\\intrinsic\\data_' + \
+    str(data)+'_camera'+str(camera_id)+'_'
+extrinsec_path = 'calibration_img\\extrinsic\\data_' + \
+    str(data)+'_camera'+str(camera_id)+'_'
 
 CHARUCOBOARD_ROWCOUNT = 4
 CHARUCOBOARD_COLCOUNT = 3
-squareLength = 0.190
-markerLength = 0.148
+squareLength = 0.20
+markerLength = 0.16
 image_h = 728
 image_w = 1288
-markerSize = 0.4 # Arucao
+markerSize = 0.649  # Arucao
 
 ARUCO_DICT = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 # Create constants to be passed into OpenCV and Aruco methods
@@ -59,7 +62,7 @@ image_size = None  # Determined at runtime
 for image_path in (os.listdir('./calibration_img/intrinsic/')):
     try:
         if "camera"+str(camera_id) in image_path:
-            img = cv2.imread('calibration_img/intrinsic/'+image_path,0)
+            img = cv2.imread('calibration_img/intrinsic/'+image_path, 0)
         else:
             continue
     except:
@@ -69,7 +72,7 @@ for image_path in (os.listdir('./calibration_img/intrinsic/')):
             image=img,
             dictionary=ARUCO_DICT)
     except:
-        print(image_path,'error')
+        print(image_path, 'error')
         continue
     # Outline the aruco markers found in our query image
     img = cv2.aruco.drawDetectedMarkers(
@@ -89,20 +92,22 @@ for image_path in (os.listdir('./calibration_img/intrinsic/')):
     # If a Charuco board was found, let's collect image/corner points
     # Requiring at least 20 squares
 
-    #Must configure the threshold for response, i got 5 at LabTef in 2022-11-01
+    # Must configure the threshold for response, i got 5 at LabTef in 2022-11-01
     print(response)
     if response > 5:
         # Add these corners and ids to our calibration arrays
         corners_all.append(charuco_corners)
         ids_all.append(charuco_ids)
 
-        # # Draw the Charuco board we've detected to show our calibrator the board was properly detected
+        # Draw the Charuco board we've detected to show our calibrator the board was properly detected
+        
+        #Repetindo var img???
         img = cv2.aruco.drawDetectedCornersCharuco(
             image=img,
             charucoCorners=charuco_corners,
             charucoIds=charuco_ids)
 
-        # # If our image size is unknown, set it now
+        # If our image size is unknown, set it now
         if not image_size:
             image_size = img.shape[::-1]
 
@@ -146,7 +151,7 @@ for image_path in (os.listdir('./calibration_img/extrinsic/')):
 
     try:
         if "camera"+str(camera_id) in image_path:
-            img = cv2.imread('calibration_img/extrinsic/'+image_path,0)
+            img = cv2.imread('calibration_img/extrinsic/'+image_path, 0)
 
         else:
             continue
@@ -162,7 +167,7 @@ for image_path in (os.listdir('./calibration_img/extrinsic/')):
 
     cv2.aruco.drawDetectedMarkers(img, corners, ids)
 
-    #7?
+    # 7?
     marker_id = np.where(ids.reshape(-1) == 7)
     rvec = rvec[marker_id].reshape((1, -1))
     print(rvec.shape, ids, rvec.shape)
@@ -208,7 +213,7 @@ calibration_parameters = {
     "calibratedAt": data,
     "intrinsic": {
         "shape": {
-			#Poderia alterar para rows e cols serem keys
+            # Poderia alterar para rows e cols serem keys
             "dims": [
                 {
                     "name": "rows",
@@ -245,4 +250,4 @@ with open('params_camera{}.json'.format(camera_id), 'w') as f:
     json.dump(calibration_parameters, f, indent=2)
 
 
-print(json.dumps(calibration_parameters),indent=2)
+print(json.dumps(calibration_parameters), indent=2)
