@@ -22,10 +22,10 @@ print('camera:', camera_id)
 
 # data das fotos da calibração YYYY-MM-DD
 data = '2022-11-07'  # datetime.today()
-intrinsec_path = f'calibration_img/intrinsic/cam{camera_id}/'
+intrinsec_path = 'calibration_img\\intrinsic\\'
 
 #\data_' + str(data)+'_camera'+str(camera_id)+'_'
-extrinsec_path = 'calibration_img/extrinsic/'
+extrinsec_path = 'calibration_img\\extrinsic\\'
 CHARUCOBOARD_ROWCOUNT = 4
 CHARUCOBOARD_COLCOUNT = 3
 squareLength = 0.20
@@ -49,95 +49,16 @@ corners_all = []  # Corners discovered in all images processed
 ids_all = []  # Aruco ids corresponding to corners discovered
 image_size = None  # Determined at runtime
 
-for image_path in (os.listdir(f'./calibration_img/intrinsic/cam{camera_id}/')):
-    try:
-        if "camera"+str(camera_id) in image_path:
-            img = cv2.imread(intrinsec_path+image_path, 0)
-        else:
-            continue
-    except Exception as error:
-        print(error)
-        continue
-    try:
-        corners, ids, _ = cv2.aruco.detectMarkers(
-            image=img,
-            dictionary=ARUCO_DICT)
-    except:
-        print(image_path, 'error')
-        continue
-    # Outline the aruco markers found in our query image
-    img = cv2.aruco.drawDetectedMarkers(
-        image=img,
-        corners=corners)
 
-    # Get charuco corners and ids from detected aruco markers
-    if ids is None:
-        continue
+# This requires a set of images or a video taken with the camera you want to calibrate
+# I'm using a set of images taken with the camera with the naming convention:
+# 'camera-pic-of-charucoboard-<NUMBER>.jpg'
+# All images used should be the same size, which if taken with the same camera shouldn't be a problem
+#camera_intrinsec = cv2.VideoCapture("./output/intrinsec_cam{}.avi".format(camera_id))
+#camera_extrinsec = cv2.VideoCapture("./output/extrinsec_cam{}.avi".format(camera_id))
+# Loop through images glob'ed
+#crop = np.array((153,478,228,558))
 
-    response, charuco_corners, charuco_ids = cv2.aruco.interpolateCornersCharuco(
-        markerCorners=corners,
-        markerIds=ids,
-        image=img,
-        board=CHARUCO_BOARD)
-
-    # If a Charuco board was found, let's collect image/corner points
-    # Requiring at least 20 squares
-
-    # Must configure the threshold for response, i got 5 at LabTef in 2022-11-01
-    print(response)
-    if response > 5:
-        # Add these corners and ids to our calibration arrays
-        corners_all.append(charuco_corners)
-        ids_all.append(charuco_ids)
-
-        # Draw the Charuco board we've detected to show our calibrator the board was properly detected
-        
-        #Repetindo var img???
-        img = cv2.aruco.drawDetectedCornersCharuco(
-            image=img,
-            charucoCorners=charuco_corners,
-            charucoIds=charuco_ids)
-
-        # If our image size is unknown, set it now
-        if not image_size:
-            image_size = img.shape[::-1]
-
-        cv2.imshow('Charuco board', img)
-        cv2.waitKey(1)
-
-    # sleep(1)
-
-  # Destroy any open CV windows
-cv2.destroyAllWindows()
-
-print("num_images: {}".format(len(corners_all)))
-
-# Make sure we were able to calibrate on at least one charucoboard by checking
-# if we ever determined the image size
-if not image_size:
-    # Calibration failed because we didn't see any charucoboards of the PatternSize used
-    print("Calibration was unsuccessful. We couldn't detect charucoboards in any of the images supplied. Try changing the patternSize passed into Charucoboard_create(), or try different pictures of charucoboards.")
-    # Exit for failure
-
-# Now that we've seen all of our images, perform the camera calibration
-# based on the set of points we've discovered
-else:
-    print("Calibrando...")
-    calibration_error, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.aruco.calibrateCameraCharuco(
-        charucoCorners=corners_all,
-        charucoIds=ids_all,
-        board=CHARUCO_BOARD,
-        imageSize=image_size,
-        cameraMatrix=None,
-        distCoeffs=None)
-
-# print(cameraMatrix.reshape(-1).tolist())
-# Print matrix and distortion coefficient to the console
-print(f"cameraMatrix = {cameraMatrix}")
-print(f"distCoeffs = {distCoeffs}")
-print(f"calibration = {calibration_error}")
-
-'''
 for image_path in (os.listdir('./calibration_img/extrinsic/')):
 
     try:
@@ -173,7 +94,7 @@ for image_path in (os.listdir('./calibration_img/extrinsic/')):
     extrinsecs = cv2.vconcat([extrinsecs, last_colum])
     print(extrinsecs.shape, cameraMatrix.shape, distCoeffs.shape)
     break
-'''
+
 calibration_parameters = {
     "error": calibration_error,
     "resolution": {
@@ -197,7 +118,7 @@ calibration_parameters = {
               ]
           },
             "type": "DOUBLE_TYPE",
-            #"doubles": extrinsecs.reshape(-1).tolist()
+            "doubles": extrinsecs.reshape(-1).tolist()
         },
         "from": "1000"
     },
