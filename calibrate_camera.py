@@ -1,13 +1,15 @@
 # pip install opencv-contrib-python
-import cv2
-import sys
-import pickle
 import glob
-from time import time, sleep
-import numpy as np
 import json
-from datetime import datetime
 import os
+import pickle
+import sys
+from datetime import datetime
+from time import sleep, time
+
+import cv2
+import numpy as np
+
 
 # Classe de erro
 class Calibration_Error(Exception):
@@ -180,9 +182,9 @@ calibration_parameters = {
         "height": image_h,
         "width": image_w,
     },
-    "id": "{}".format(camera_id),
+    "id": str(camera_id),
     "extrinsic": {
-        "to": "{}".format(camera_id),
+        "to": str(camera_id),
         "tf": {
           "shape": {
               "dims": [
@@ -204,7 +206,7 @@ calibration_parameters = {
     "calibratedAt": data,
     "intrinsic": {
         "shape": {
-            # Poderia alterar para rows e cols serem keys
+            # Poderia alterar para rows e cols serem keys e excluir size
             "dims": [
                 {
                     "name": "rows",
@@ -222,6 +224,8 @@ calibration_parameters = {
     "distortion": {
         "shape": {
             "dims": [
+            # Poderia alterar para rows e cols serem keys e excluir size
+
                 {
                     "name": "rows",
                     "size": distCoeffs.shape[0]
@@ -241,4 +245,4 @@ with open('params_camera{}.json'.format(camera_id), 'w') as f:
     json.dump(calibration_parameters, f, indent=2)
 
 
-print(json.dumps(calibration_parameters), indent=2)
+print(json.dumps(calibration_parameters, indent=2))

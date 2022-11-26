@@ -1,4 +1,6 @@
+# REPOSITÓRIO ARQUIVADO POR PROBLEMAS DE PRIVACIDADE DE IMAGEM
 # camera-calibration
+
 As imagens estão armazenadas da seguinte forma
 
 nome padronizado:
@@ -7,9 +9,14 @@ nome padronizado:
 camera-calibration
 
   - intrinsec
-  
-      `imagens do charuco`
-      
+        - cam0
+            `imagens do charuco`
+        - cam1
+            `imagens do charuco`
+        - cam2
+            `imagens do charuco`
+        - cam3
+            `imagens do charuco`
   - extrinsec
   
       `imagens do aruco maior no centro da sala`
